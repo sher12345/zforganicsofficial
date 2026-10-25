@@ -1,3 +1,5 @@
+
+
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -750,8 +752,8 @@ nav{background:rgba(251,247,238,.92)}
 </script>
 <script>
 /* hero background video: plays hero1.mp4 then hero2.mp4, repeating */
-(function(){var v=document.getElementById("herovid");if(!v)return;var f=["hero1.mp4","hero2.mp4"],i=0;
-v.addEventListener("ended",function(){i=(i+1)%f.length;v.src=f[i];v.play().catch(function(){})});
+(function(){var v=document.getElementById("herovid");if(!v)return;var f=["hero1.mp4","hero2.mp4"],pos=["50% 50%","80% 50%"],i=0;
+v.addEventListener("ended",function(){i=(i+1)%f.length;v.src=f[i];v.style.objectPosition=pos[i];v.play().catch(function(){})});
 v.play&&v.play().catch(function(){})})();
 </script>
 </body></html>
