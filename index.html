@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -565,12 +564,18 @@ nav{background:rgba(251,247,238,.92)}
 @media (hover:none){.tile:hover{transform:none;box-shadow:none}}
 
 
-/* ---------- Hero background video ---------- */
-.hero{position:relative;isolation:isolate}
+/* ---------- Hero background video (full, clear) ---------- */
+.hero{position:relative;isolation:isolate;min-height:calc(100vh - 52px);min-height:calc(100svh - 52px);display:flex;align-items:center;padding:72px 0}
+.hero>.herocontent{width:100%}
 .herovid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2;pointer-events:none}
-.herofade{position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(to bottom,rgba(251,247,238,.82) 0%,rgba(251,247,238,.62) 50%,var(--bg) 100%)}
+.herofade{position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(to bottom,rgba(12,22,15,.50) 0%,rgba(12,22,15,.34) 55%,rgba(12,22,15,.55) 100%)}
 .herocontent{position:relative;z-index:1}
-@media (prefers-reduced-motion:reduce){.herovid{display:none}.herofade{background:none}}
+.hero h1{color:#fff;text-shadow:0 2px 24px rgba(0,0,0,.35)}
+.hero p.lede{color:rgba(255,255,255,.92);text-shadow:0 1px 14px rgba(0,0,0,.35)}
+.hero .btn.alt{color:#fff}
+.hero .btn:not(.alt){background:var(--gold);color:#17261d}
+.duo{display:none!important}
+@media (prefers-reduced-motion:reduce){.herovid{display:none}.herofade{background:#233b2f}}
 </style>
 
 <script>
