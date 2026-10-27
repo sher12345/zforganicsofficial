@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>ZF Organics Admin</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<style>
+:root{--bg:#fbf7ee;--fg:#233b2f;--mut:#5d6a60;--card:#fff;--line:#e2d6bd;--gold:#c07c10;--green:#233b2f;--cream:#f6eddc;--red:#b3402e;--blue:#2d6a9f;
+--font:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif;color-scheme:light}
+@media(prefers-color-scheme:dark){:root{--bg:#121a15;--fg:#f1ead9;--mut:#a3ada4;--card:#1a251e;--line:#2c3a31;--green:#3d6a52;--cream:#fff;color-scheme:dark}}
+*{box-sizing:border-box;margin:0}
+html,body{overflow-x:hidden;max-width:100%}
+body{background:var(--bg);color:var(--fg);font:400 15px/1.45 var(--font);padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+button,input,select,textarea{font:inherit;color:inherit}button{cursor:pointer;border:0;background:none}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.w{max-width:1100px;margin:0 auto;padding:0 max(16px,env(safe-area-inset-left))}
+#login{min-height:100vh;display:grid;place-content:center;gap:12px;max-width:340px;margin:0 auto;padding:24px}
+#app{display:none}#app.on{display:block}
+.inp{width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;background:var(--card);font-size:16px}
+.btn{min-height:44px;padding:0 18px;border-radius:12px;background:var(--green);color:var(--cream);font-weight:600}
+.btn.ghost{background:var(--card);color:var(--fg);border:1px solid var(--line)}
+.btn.sm{min-height:36px;padding:0 12px;font-size:13px}
+header{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+header .w{display:flex;align-items:center;gap:10px;height:56px}header h1{font-size:18px;margin-right:auto}
+h1 span{color:var(--gold)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:16px 0}
+.k{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.k b{display:block;font-size:22px;letter-spacing:-.02em}.k span{font-size:12px;color:var(--mut)}
+.row{display:grid;grid-template-columns:1.3fr 1fr;gap:12px;margin-bottom:16px}
+@media(max-width:760px){.row{grid-template-columns:1fr}}
+.pan{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}.pan h2{font-size:13px;color:var(--mut);margin-bottom:10px}
+.bars{display:flex;align-items:flex-end;gap:8px;height:110px}.bars div{flex:1;text-align:center;font-size:11px;color:var(--mut)}
+.bars i{display:block;background:var(--green);border-radius:6px 6px 0 0;min-height:2px;margin-bottom:4px}
+.pr{display:flex;justify-content:space-between;padding:6px 0;border-top:1px solid var(--line);font-size:14px}.pr:first-of-type{border:0}
+.ctl{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}.ctl .inp{flex:1;min-width:180px}.ctl select{width:auto}
+.tabs{display:flex;gap:6px;overflow-x:auto;margin-bottom:12px;scrollbar-width:none}.tabs::-webkit-scrollbar{display:none}
+.tab{white-space:nowrap;padding:8px 14px;border-radius:980px;border:1px solid var(--line);background:var(--card);font-size:13px;font-weight:600}
+.tab.on{background:var(--green);color:var(--cream);border-color:var(--green)}
+.o{background:var(--card);border:1px solid var(--line);border-radius:14px;margin-bottom:10px;overflow:hidden}
+.oh{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:12px 14px;cursor:pointer;width:100%;text-align:left}
+.oh small{color:var(--mut)}.oh .t{text-align:right;font-weight:700}
+.pill{display:inline-block;font-size:11px;font-weight:700;padding:2px 9px;border-radius:980px;margin-left:6px;color:#fff;vertical-align:middle}
+.s-new{background:var(--gold)}.s-confirmed{background:var(--blue)}.s-dispatched{background:#6b4fa0}.s-delivered{background:#2f7d4f}.s-cancelled{background:var(--red)}
+.od{display:none;padding:0 14px 14px;border-top:1px solid var(--line)}.o.open .od{display:block}
+.od p{margin-top:8px}.od .lines div{display:flex;justify-content:space-between;padding:4px 0}
+.acts{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.acts .on{outline:2px solid var(--gold)}
+textarea.inp{min-height:60px;margin-top:10px}
+.empty{text-align:center;color:var(--mut);padding:40px 0}
+.toast{position:fixed;left:50%;bottom:20px;transform:translate(-50%,200%);background:var(--green);color:var(--cream);padding:10px 18px;border-radius:980px;transition:transform .3s;z-index:20}.toast.show{transform:translate(-50%,0)}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></head><body>
+<form id="login" onsubmit="return false">
+ <h1 style="font-size:26px">ZF <span>Organics</span> Admin</h1>
+ <input class="inp" id="em" type="email" placeholder="Email" autocomplete="username" aria-label="Email">
+ <input class="inp" id="pw" type="password" placeholder="Password" autocomplete="current-password" aria-label="Password">
+ <button class="btn" id="go">Sign in</button><div id="err" style="color:var(--red);min-height:20px"></div>
+</form>
+<div id="app">
+ <header><div class="w"><h1>ZF <span>Orders</span></h1><button class="btn ghost sm" id="rf">Refresh</button><button class="btn ghost sm" id="csv">Export CSV</button><button class="btn ghost sm" id="out">Sign out</button></div></header>
+ <main class="w">
+  <div class="kpis" id="kpis"></div>
+  <div class="row"><div class="pan"><h2>Revenue, last 7 days</h2><div class="bars" id="bars"></div></div><div class="pan"><h2>Top products</h2><div id="top"></div></div></div>
+  <div class="ctl"><input class="inp" id="q" placeholder="Search name, phone, city, order no" aria-label="Search">
+   <select class="inp" id="per" aria-label="Period"><option value="1">Today</option><option value="7">Last 7 days</option><option value="30" selected>Last 30 days</option><option value="0">All time</option></select></div>
+  <div class="tabs" id="tabs"></div><div id="list"></div>
+ </main>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+var SB_URL="https://nlhrwmguktlbadsmkqoj.supabase.co",SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5saHJ3bWd1a3RsYmFkc21rcW9qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMxMTY5MzcsImV4cCI6MjEwODY5MjkzN30.VyPLzSGXe7oLAeTG5IixQba7ECTReuQPTkC3NkveH7U";
+var sb=supabase.createClient(SB_URL,SB_KEY),$=function(i){return document.getElementById(i)};
+var ST=[["new","New"],["confirmed","Confirmed"],["dispatched","Dispatched"],["delivered","Delivered"],["cancelled","Cancelled"]];
+var rows=[],f={st:"all",q:"",per:30},openIds={},seen=null,timer=null;
+var esc=function(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})};
+var fmt=function(n){return "Rs "+Number(n||0).toLocaleString("en-US")};
+var when=function(d){return new Date(d).toLocaleString("en-PK",{day:"numeric",month:"short",hour:"numeric",minute:"2-digit"})};
+function toast(m){var t=$("toast");t.textContent=m;t.classList.add("show");setTimeout(function(){t.classList.remove("show")},2200)}
+function beep(){try{var c=new(window.AudioContext||window.webkitAudioContext)(),o=c.createOscillator(),g=c.createGain();o.frequency.value=880;g.gain.value=.15;o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.25)}catch(e){}}
+/* auth */
+$("go").onclick=async function(){$("err").textContent="";var r=await sb.auth.signInWithPassword({email:$("em").value.trim(),password:$("pw").value});
+ if(r.error)$("err").textContent=r.error.message;else start()};
+$("out").onclick=async function(){await sb.auth.signOut();location.reload()};
+(async function(){var s=await sb.auth.getSession();if(s.data.session)start()})();
+function start(){$("login").style.display="none";$("app").classList.add("on");load();clearInterval(timer);timer=setInterval(load,20000);
+ sb.channel("zf").on("postgres_changes",{event:"*",schema:"public",table:"zf_orders"},load).subscribe()}
+async function load(){var r=await sb.from("zf_orders").select("*").order("created_at",{ascending:false}).limit(3000);
+ if(r.error){toast("Load failed: "+r.error.message);return}
+ var ids=r.data.map(function(o){return o.id});
+ if(seen){var n=ids.filter(function(i){return !seen[i]});if(n.length){beep();toast(n.length+" new order"+(n.length>1?"s":""))}}
+ seen={};ids.forEach(function(i){seen[i]=1});rows=r.data;render()}
+/* filtering */
+function inPeriod(o){if(!f.per)return true;var d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-(f.per-1));return new Date(o.created_at)>=d}
+function visible(){var q=f.q.toLowerCase();return rows.filter(function(o){
+ return inPeriod(o)&&(f.st==="all"||o.status===f.st)&&(!q||[o.name,o.phone,o.city,o.order_no,o.address].join(" ").toLowerCase().indexOf(q)>-1)})}
+function render(){
+ var per=rows.filter(inPeriod),live=per.filter(function(o){return o.status!=="cancelled"}),rev=live.reduce(function(t,o){return t+o.total},0);
+ var cnt={};rows.forEach(function(o){cnt[o.phone]=(cnt[o.phone]||0)+1});
+ var repeat=Object.keys(cnt).filter(function(p){return p&&cnt[p]>1}).length;
+ var k=[[rows.filter(function(o){return o.status==="new"}).length,"New, awaiting action"],[per.length,"Orders in period"],[fmt(rev),"Revenue (excl. cancelled)"],
+  [live.length?fmt(Math.round(rev/live.length)):"Rs 0","Average order"],[per.filter(function(o){return o.status==="delivered"}).length,"Delivered"],[repeat,"Repeat customers (all time)"]];
+ $("kpis").innerHTML=k.map(function(x){return '<div class="k"><b>'+x[0]+'</b><span>'+x[1]+'</span></div>'}).join("");
+ /* 7 day bars */
+ var days=[],mx=1;for(var i=6;i>=0;i--){var d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-i);var e=new Date(d);e.setDate(e.getDate()+1);
+  var v=rows.filter(function(o){var t=new Date(o.created_at);return o.status!=="cancelled"&&t>=d&&t<e}).reduce(function(t,o){return t+o.total},0);mx=Math.max(mx,v);days.push([d.toLocaleDateString("en-PK",{weekday:"short"}),v])}
+ $("bars").innerHTML=days.map(function(x){return '<div title="'+fmt(x[1])+'"><i style="height:'+Math.round(x[1]/mx*80)+'px"></i>'+x[0]+'</div>'}).join("");
+ /* top products */
+ var tp={};live.forEach(function(o){(o.items||[]).forEach(function(it){var key=it.name+" "+it.size;tp[key]=tp[key]||{q:0,r:0};tp[key].q+=it.qty;tp[key].r+=it.line})});
+ var tl=Object.keys(tp).sort(function(a,b){return tp[b].r-tp[a].r}).slice(0,5);
+ $("top").innerHTML=tl.length?tl.map(function(n){return '<div class="pr"><span>'+esc(n)+' &times; '+tp[n].q+'</span><b>'+fmt(tp[n].r)+'</b></div>'}).join(""):'<div class="empty" style="padding:16px">No orders yet</div>';
+ /* tabs */
+ var base=rows.filter(inPeriod);
+ $("tabs").innerHTML=[["all","All"]].concat(ST).map(function(s){var n=s[0]==="all"?base.length:base.filter(function(o){return o.status===s[0]}).length;
+  return '<button class="tab'+(f.st===s[0]?" on":"")+'" data-st="'+s[0]+'">'+s[1]+' '+n+'</button>'}).join("");
+ /* list */
+ var v=visible();
+ $("list").innerHTML=v.length?v.map(function(o){
+  var ph=String(o.phone||"").replace(/\D/g,"");if(ph.indexOf("0")===0)ph="92"+ph.slice(1);
+  var n=cnt[o.phone]||1,sum=(o.items||[]).map(function(i){return i.qty+"&times; "+esc(i.name)+" "+esc(i.size)}).join(", ");
+  return '<article class="o'+(openIds[o.id]?" open":"")+'" data-id="'+o.id+'"><button class="oh" data-tog="'+o.id+'" aria-expanded="'+(!!openIds[o.id])+'">'+
+  '<span><b>'+esc(o.name||"No name")+'</b><span class="pill s-'+o.status+'">'+o.status+'</span>'+(n>1?'<span class="pill" style="background:var(--mut)">order #'+n+'</span>':"")+'<br><small>'+esc(o.order_no)+' &middot; '+when(o.created_at)+' &middot; '+esc(o.city||"")+'</small></span>'+
+  '<span class="t">'+fmt(o.total)+'<br><small style="font-weight:400">'+sum.slice(0,40)+'</small></span></button>'+
+  '<div class="od"><p><b>Phone:</b> '+esc(o.phone||"-")+'</p><p><b>Address:</b> '+esc(o.address||"-")+(o.city?", "+esc(o.city):"")+'</p>'+(o.note?'<p><b>Customer note:</b> '+esc(o.note)+'</p>':"")+
+  '<div class="lines" style="margin-top:8px">'+(o.items||[]).map(function(i){return '<div><span>'+i.qty+' &times; '+esc(i.name)+' ('+esc(i.size)+')</span><span>'+fmt(i.line)+'</span></div>'}).join("")+
+  '<div><span>Delivery</span><span>'+fmt(o.shipping)+'</span></div><div><b>Total</b><b>'+fmt(o.total)+'</b></div></div>'+
+  '<div class="acts">'+ST.map(function(s){return '<button class="btn sm ghost'+(o.status===s[0]?" on":"")+'" data-set="'+o.id+'|'+s[0]+'">'+s[1]+'</button>'}).join("")+'</div>'+
+  '<textarea class="inp" data-note="'+o.id+'" placeholder="Private note (courier, payment, etc.)">'+esc(o.admin_note||"")+'</textarea>'+
+  '<div class="acts"><button class="btn sm" data-savenote="'+o.id+'">Save note</button>'+(ph?'<a class="btn sm ghost" style="display:inline-flex;align-items:center;text-decoration:none" target="_blank" rel="noopener" href="https://wa.me/'+ph+'">WhatsApp customer</a><a class="btn sm ghost" style="display:inline-flex;align-items:center;text-decoration:none" href="tel:+'+ph+'">Call</a>':"")+
+  '<button class="btn sm ghost" data-del="'+o.id+'" style="color:var(--red)">Delete</button></div></div></article>'}).join(""):'<div class="empty">No orders match.</div>'}
+/* events */
+document.addEventListener("click",async function(e){var b=e.target.closest("button");if(!b)return;
+ if(b.dataset.st){f.st=b.dataset.st;render()}
+ else if(b.dataset.tog){openIds[b.dataset.tog]=!openIds[b.dataset.tog];render()}
+ else if(b.dataset.set){var p=b.dataset.set.split("|"),r=await sb.from("zf_orders").update({status:p[1],updated_at:new Date().toISOString()}).eq("id",p[0]);
+  if(r.error)toast(r.error.message);else{rows.forEach(function(o){if(o.id===p[0])o.status=p[1]});render();toast("Marked "+p[1])}}
+ else if(b.dataset.savenote){var id=b.dataset.savenote,v=document.querySelector('[data-note="'+id+'"]').value,r2=await sb.from("zf_orders").update({admin_note:v}).eq("id",id);
+  if(r2.error)toast(r2.error.message);else{rows.forEach(function(o){if(o.id===id)o.admin_note=v});toast("Note saved")}}
+ else if(b.dataset.del){if(!confirm("Delete this order permanently?"))return;var r3=await sb.from("zf_orders").delete().eq("id",b.dataset.del);
+  if(r3.error)toast(r3.error.message);else{rows=rows.filter(function(o){return o.id!==b.dataset.del});render()}}});
+$("q").oninput=function(){f.q=this.value;render()};$("per").onchange=function(){f.per=+this.value;render()};$("rf").onclick=load;
+$("csv").onclick=function(){var v=visible(),h=["Order","Date","Status","Name","Phone","City","Address","Items","Subtotal","Delivery","Total","Note","Admin note"];
+ var l=v.map(function(o){return [o.order_no,new Date(o.created_at).toISOString(),o.status,o.name,o.phone,o.city,o.address,(o.items||[]).map(function(i){return i.qty+"x "+i.name+" "+i.size}).join("; "),o.subtotal,o.shipping,o.total,o.note,o.admin_note]});
+ var c=[h].concat(l).map(function(r){return r.map(function(x){return '"'+String(x==null?"":x).replace(/"/g,'""')+'"'}).join(",")}).join("\n");
+ var a=document.createElement("a");a.href=URL.createObjectURL(new Blob([c],{type:"text/csv"}));a.download="zf-orders.csv";a.click()};
+</script></body></html>
