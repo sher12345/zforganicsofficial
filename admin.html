@@ -49,6 +49,23 @@ textarea.inp{min-height:60px;margin-top:10px}
 .empty{text-align:center;color:var(--mut);padding:40px 0}
 .toast{position:fixed;left:50%;bottom:20px;transform:translate(-50%,200%);background:var(--green);color:var(--cream);padding:10px 18px;border-radius:980px;transition:transform .3s;z-index:20}.toast.show{transform:translate(-50%,0)}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
+.pm-top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:16px 0 12px}.pm-top h2{font-size:18px}
+.pm-it{display:grid;grid-template-columns:72px 1fr;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px;margin-bottom:10px;align-items:center}
+.pm-it.pm-off{opacity:.6}
+.pm-th{width:72px;height:72px;border-radius:10px;background:var(--line);overflow:hidden;display:grid;place-items:center;color:var(--mut);font-size:11px;text-align:center}.pm-th img{width:100%;height:100%;object-fit:cover;display:block}
+.pm-in b{display:block}.pm-in small{display:block;color:var(--mut)}
+.pm-ac{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px}
+.pm-form label.pm-lb{display:block;font-size:12px;color:var(--mut);margin:14px 0 4px}
+.pm-form textarea.inp{min-height:84px;margin-top:0}
+.pm-img{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.pm-pv{width:120px;height:120px;border-radius:12px;background:var(--line);overflow:hidden;display:grid;place-items:center;color:var(--mut);font-size:12px;text-align:center;flex-shrink:0}.pm-pv img{width:100%;height:100%;object-fit:cover;display:block}
+.pm-img small,.pm-hint{color:var(--mut);font-size:12px;display:block;margin-top:4px}
+.pm-g{border:1px dashed var(--line);border-radius:12px;padding:10px;margin-bottom:8px}
+.pm-gh{display:flex;gap:6px}.pm-gh .inp{flex:1}
+.pm-r{display:grid;grid-template-columns:1fr 1fr 40px;gap:6px;margin-top:6px}
+.pm-bar{display:flex;gap:8px;margin-top:18px;flex-wrap:wrap}
+.pm-err{background:rgba(179,64,46,.1);border:1px solid var(--red);color:var(--red);border-radius:12px;padding:12px 14px;margin-bottom:12px}
+.pm-toast{position:fixed;left:50%;bottom:20px;transform:translate(-50%,200%);background:var(--green);color:var(--cream);padding:10px 18px;border-radius:980px;transition:transform .3s;z-index:300}.pm-toast.show{transform:translate(-50%,0)}
 </style></head><body>
 <form id="login" onsubmit="return false">
  <h1 style="font-size:26px">ZF <span>Organics</span> Admin</h1>
@@ -142,4 +159,97 @@ $("csv").onclick=function(){var v=visible(),h=["Order","Date","Status","Name","P
  var l=v.map(function(o){return [o.order_no,new Date(o.created_at).toISOString(),o.status,o.name,o.phone,o.city,o.address,(o.items||[]).map(function(i){return i.qty+"x "+i.name+" "+i.size}).join("; "),o.subtotal,o.shipping,o.total,o.note,o.admin_note]});
  var c=[h].concat(l).map(function(r){return r.map(function(x){return '"'+String(x==null?"":x).replace(/"/g,'""')+'"'}).join(",")}).join("\n");
  var a=document.createElement("a");a.href=URL.createObjectURL(new Blob([c],{type:"text/csv"}));a.download="zf-orders.csv";a.click()};
+</script>
+<script>
+/* ===== Product manager (admin): add products with details, sizes, prices and an image ===== */
+(function(){
+var sb=window.sb,app=document.getElementById("app"),hd=document.querySelector("#app header .w"),mainO=document.querySelector("#app main");
+if(!sb||!app||!hd||!mainO)return;
+var esc=function(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})};
+var fmt=function(n){return "Rs "+Number(n||0).toLocaleString("en-US")};
+var main=document.createElement("main");main.className="w";main.id="pmMain";main.style.display="none";app.appendChild(main);
+var tt=document.createElement("div");tt.className="pm-toast";document.body.appendChild(tt);
+function note(m){tt.textContent=m;tt.classList.add("show");clearTimeout(note.t);note.t=setTimeout(function(){tt.classList.remove("show")},2600)}
+var btn=document.createElement("button");btn.className="btn ghost sm";btn.id="pmBtn";btn.type="button";btn.textContent="Products";
+hd.insertBefore(btn,document.getElementById("rf")||null);
+var on=false,items=[],ed=null,err="",busy=false;
+btn.onclick=function(){on=!on;mainO.style.display=on?"none":"";main.style.display=on?"":"none";btn.textContent=on?"← Orders":"Products";if(on){ed=null;load()}};
+async function load(){var r=await sb.from("zf_products").select("*").order("sort",{ascending:true}).order("created_at",{ascending:true});
+ if(r.error){err=/relation|does not exist|schema cache/i.test(r.error.message)?"The products table is not set up yet. Run zf-products.sql once in Supabase (SQL Editor), then reload this page.":r.error.message;items=[]}else{err="";items=r.data||[]}draw()}
+function minP(p){var m=1e12;(p.types||[]).forEach(function(t){(t.s||[]).forEach(function(s){m=Math.min(m,s[1])})});return m===1e12?0:m}
+function nSizes(p){return (p.types||[]).reduce(function(t,x){return t+(x.s||[]).length},0)}
+function draw(){main.innerHTML=ed?form():list();bindForm()}
+function list(){
+ return '<div class="pm-top"><h2>Products</h2><button class="btn sm" data-a="new" type="button">+ Add product</button></div>'+
+ (err?'<div class="pm-err">'+esc(err)+'</div>':'')+
+ '<p class="pm-hint" style="margin:0 0 12px">Products you add here appear on the shop page after Natural Honey and Desi Ghee, filling the screen.</p>'+
+ (items.length?items.map(function(p,i){
+  return '<div class="pm-it'+(p.active===false?' pm-off':'')+'"><div class="pm-th">'+(p.image?'<img src="'+p.image+'" alt="">':'No image')+'</div>'+
+  '<div class="pm-in"><b>'+esc(p.name)+(p.active===false?' <small style="display:inline">(hidden)</small>':'')+'</b><small>'+esc(p.tag||"")+'</small><small>From '+fmt(minP(p))+' &middot; '+nSizes(p)+' size'+(nSizes(p)===1?'':'s')+'</small></div>'+
+  '<div class="pm-ac"><button class="btn sm ghost" data-a="up" data-id="'+p.id+'"'+(i?'':' disabled')+' aria-label="Move up">↑</button><button class="btn sm ghost" data-a="down" data-id="'+p.id+'"'+(i<items.length-1?'':' disabled')+' aria-label="Move down">↓</button>'+
+  '<button class="btn sm ghost" data-a="tog" data-id="'+p.id+'">'+(p.active===false?'Show on shop':'Hide')+'</button><button class="btn sm" data-a="edit" data-id="'+p.id+'">Edit</button><button class="btn sm ghost" data-a="del" data-id="'+p.id+'" style="color:var(--red)">Delete</button></div></div>'}).join(""):
+  (err?'':'<div class="empty">No products yet. Tap "+ Add product".</div>'))}
+function blank(){return{id:null,name:"",tag:"",desc:"",img:"",theme:"auto",groups:[{n:"",rows:[{l:"",p:""}]}]}}
+function fromRow(p){return{id:p.id,name:p.name||"",tag:p.tag||"",desc:p.description||"",img:p.image||"",theme:p.theme||"auto",
+ groups:(p.types&&p.types.length?p.types:[{n:null,s:[]}]).map(function(t){return{n:t.n||"",rows:(t.s&&t.s.length?t.s:[["",""]]).map(function(s){return{l:s[0],p:s[1]}})}})}}
+function form(){
+ var th=[["auto","Automatic"],["green","Dark green"],["cream","Cream"],["brown","Brown"],["sand","Sand"]];
+ return '<div class="pm-top"><h2>'+(ed.id?'Edit product':'Add product')+'</h2></div><div class="pan pm-form">'+
+ '<label class="pm-lb" for="pm-n">Product name</label><input class="inp" id="pm-n" maxlength="60" value="'+esc(ed.name)+'" placeholder="e.g. Ajwa Dates">'+
+ '<label class="pm-lb" for="pm-t">Short line (shown under the name on the tile)</label><input class="inp" id="pm-t" maxlength="90" value="'+esc(ed.tag)+'" placeholder="e.g. Soft, dark and naturally sweet.">'+
+ '<label class="pm-lb" for="pm-d">Details (shown when a customer taps Details)</label><textarea class="inp" id="pm-d" maxlength="600" placeholder="Describe the product">'+esc(ed.desc)+'</textarea>'+
+ '<label class="pm-lb">Image</label><div class="pm-img"><div class="pm-pv" id="pm-pv">'+(ed.img?'<img src="'+ed.img+'" alt="">':'No image')+'</div><div><input type="file" id="pm-f" accept="image/*"><button class="btn sm ghost" type="button" data-a="noimg" style="margin-top:8px">Remove image</button><small>A square photo looks best. It is cropped to fill the tile.</small></div></div>'+
+ '<label class="pm-lb" for="pm-c">Tile colour</label><select class="inp" id="pm-c">'+th.map(function(t){return '<option value="'+t[0]+'"'+(ed.theme===t[0]?' selected':'')+'>'+t[1]+'</option>'}).join("")+'</select>'+
+ '<label class="pm-lb">Sizes and prices</label>'+ed.groups.map(function(g,gi){
+  return '<div class="pm-g"><div class="pm-gh"><input class="inp" data-gn="'+gi+'" value="'+esc(g.n)+'" placeholder="Type name (only if you have several types, e.g. Big bees)">'+(ed.groups.length>1?'<button class="btn sm ghost" type="button" data-a="rmg" data-gi="'+gi+'">Remove</button>':'')+'</div>'+
+  g.rows.map(function(r,ri){return '<div class="pm-r"><input class="inp" data-l="'+gi+'-'+ri+'" value="'+esc(r.l)+'" placeholder="Size, e.g. 500 g" maxlength="24"><input class="inp" type="number" inputmode="numeric" min="1" data-p="'+gi+'-'+ri+'" value="'+esc(r.p)+'" placeholder="Price in Rs"><button class="btn sm ghost" type="button" data-a="rmr" data-gi="'+gi+'" data-ri="'+ri+'" aria-label="Remove size"'+(g.rows.length>1?'':' disabled')+'>×</button></div>'}).join("")+
+  '<button class="btn sm ghost" type="button" data-a="addr" data-gi="'+gi+'" style="margin-top:8px">+ Add size</button></div>'}).join("")+
+ '<button class="btn sm ghost" type="button" data-a="addg">+ Add another type</button>'+
+ '<div class="pm-bar"><button class="btn" type="button" data-a="save">'+(busy?'Saving…':'Save product')+'</button><button class="btn ghost" type="button" data-a="cancel">Cancel</button></div></div>'}
+function sync(){if(!ed||!$("pm-n"))return;ed.name=$("pm-n").value;ed.tag=$("pm-t").value;ed.desc=$("pm-d").value;ed.theme=$("pm-c").value;
+ main.querySelectorAll("[data-gn]").forEach(function(i){ed.groups[+i.dataset.gn].n=i.value});
+ main.querySelectorAll("[data-l]").forEach(function(i){var k=i.dataset.l.split("-");ed.groups[+k[0]].rows[+k[1]].l=i.value});
+ main.querySelectorAll("[data-p]").forEach(function(i){var k=i.dataset.p.split("-");ed.groups[+k[0]].rows[+k[1]].p=i.value})}
+function $(i){return document.getElementById(i)}
+/* crop to a centred square and shrink, so every product fills its tile the same way */
+function square(file){return new Promise(function(res,rej){var im=new Image(),u=URL.createObjectURL(file);
+ im.onload=function(){var s=Math.min(im.width,im.height),c=document.createElement("canvas");c.width=c.height=900;var x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,900,900);
+  x.drawImage(im,(im.width-s)/2,(im.height-s)/2,s,s,0,0,900,900);URL.revokeObjectURL(u);res(c.toDataURL("image/jpeg",.82))};
+ im.onerror=function(){URL.revokeObjectURL(u);rej(new Error("That file is not an image"))};im.src=u})}
+function bindForm(){var f=$("pm-f");if(!f)return;f.onchange=async function(){var file=f.files&&f.files[0];if(!file)return;
+ try{ed.img=await square(file);$("pm-pv").innerHTML='<img src="'+ed.img+'" alt="">'}catch(e){note(e.message)}}}
+async function save(){sync();if(busy)return;
+ var name=ed.name.trim();if(!name){note("Enter the product name");return}
+ var types=[];
+ for(var gi=0;gi<ed.groups.length;gi++){var g=ed.groups[gi],s=[];
+  for(var ri=0;ri<g.rows.length;ri++){var r=g.rows[ri],l=String(r.l).trim(),p=Math.round(Number(r.p));
+   if(!l&&!r.p)continue;if(!l||!(p>0)){note("Each size needs a name and a price above 0");return}s.push([l,p])}
+  if(!s.length)continue;if(ed.groups.length>1&&!g.n.trim()){note("Give each type a name");return}types.push({n:g.n.trim()||null,s:s})}
+ if(!types.length){note("Add at least one size with a price");return}
+ var row={name:name,tag:ed.tag.trim()||null,description:ed.desc.trim()||null,types:types,image:ed.img||null,theme:ed.theme};
+ busy=true;draw();var r2;
+ if(ed.id)r2=await sb.from("zf_products").update(row).eq("id",ed.id);
+ else{row.sort=items.reduce(function(m,p){return Math.max(m,p.sort||0)},0)+1;r2=await sb.from("zf_products").insert(row)}
+ busy=false;
+ if(r2.error){draw();note("Could not save: "+r2.error.message);return}
+ note(ed.id?"Product updated":"Product added to the shop");ed=null;load()}
+main.addEventListener("click",async function(e){var b=e.target.closest("button[data-a]");if(!b)return;var a=b.dataset.a,id=b.dataset.id;
+ if(a==="new"){ed=blank();draw();return}
+ if(a==="cancel"){ed=null;draw();return}
+ if(a==="edit"){ed=fromRow(items.filter(function(p){return p.id===id})[0]);draw();return}
+ if(a==="save"){save();return}
+ if(a==="noimg"){ed.img="";$("pm-pv").textContent="No image";var f=$("pm-f");if(f)f.value="";return}
+ if(["addr","addg","rmr","rmg"].indexOf(a)>-1){sync();var gi=+b.dataset.gi;
+  if(a==="addr")ed.groups[gi].rows.push({l:"",p:""});
+  else if(a==="addg")ed.groups.push({n:"",rows:[{l:"",p:""}]});
+  else if(a==="rmr")ed.groups[gi].rows.splice(+b.dataset.ri,1);
+  else ed.groups.splice(gi,1);draw();return}
+ var i=items.findIndex(function(p){return p.id===id}),p=items[i];
+ if(a==="tog"){var r=await sb.from("zf_products").update({active:p.active===false}).eq("id",id);if(r.error)note(r.error.message);else{note(p.active===false?"Now showing on the shop":"Hidden from the shop");load()}}
+ else if(a==="del"){if(!confirm('Delete "'+p.name+'" from the shop?'))return;var r3=await sb.from("zf_products").delete().eq("id",id);if(r3.error)note(r3.error.message);else{note("Deleted");load()}}
+ else if(a==="up"||a==="down"){var j=a==="up"?i-1:i+1,q=items[j];if(!q)return;
+  var s1=p.sort||0,s2=q.sort||0;if(s1===s2){s1=i+1;s2=j+1}
+  var ra=await sb.from("zf_products").update({sort:s2}).eq("id",p.id),rb=await sb.from("zf_products").update({sort:s1}).eq("id",q.id);
+  if(ra.error||rb.error)note((ra.error||rb.error).message);else load()}});
+})();
 </script></body></html>
