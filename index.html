@@ -445,7 +445,7 @@ var IMGS={honey:"data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBAUE
 var P=[
  {id:"honey",name:"Natural Honey",tag:"Thick, golden and free from additives.",
  desc: "Pure, natural honey with a rich golden taste. Perfect for spreading on parathas, stirring into warm drinks, or adding natural sweetness to your favorite foods.",
-  types:[{n:"Big bees honey",s:[["250 ml",899],["500 g",1799],["1 kg",3499]]},{n:"Small bees honey",s:[["250 ml",1499],["500 g",2999],["1 kg",5999]]}]},
+  types:[{n:"Big bees honey",s:[["250 g",899],["500 g",1799],["1 kg",3499]]},{n:"Small bees honey",s:[["250 g",1499],["500 g",2999],["1 kg",5999]]}]},
  {id:"ghee",name:"Desi Ghee",tag:"Golden yellow, for tarka, rotis and sweets.",
   desc:"Golden yellow desi ghee with nothing added. Use it for tarka, over a hot roti, or as the base for halwa and panjiri.",
   types:[{n:null,s:[["500 g",1799],["1 kg",3499]]}]}];
@@ -472,7 +472,7 @@ $("shop").innerHTML=P.map(function(p){
  return '<article class="tile '+p.id+'"><h2>'+esc(p.name)+'</h2><p>'+esc(p.tag)+'</p><div class="from">From '+fmt(minP(p))+'</div>'+
  '<div class="acts"><button class="btn gold" type="button" data-o="'+p.id+'">Buy</button><button class="btn alt" type="button" data-o="'+p.id+'">Details &rsaquo;</button></div>'+
  '<button class="vis" type="button" data-o="'+p.id+'" aria-label="Choose '+esc(p.name)+' options">'+jar(p)+'</button></article>'}).join("");
-$("rh").textContent="250 ml to 1 kg";$("rg").textContent="500 g to 1 kg";
+$("rh").textContent="250 g to 1 kg";$("rg").textContent="500 g to 1 kg";
 $("ph").textContent=WAD;$("addr").textContent=ADDR;
 document.querySelectorAll("[data-wa]").forEach(function(a){a.href="https://wa.me/"+WA});
 $("cp").onclick=function(){var b=this;(navigator.clipboard?navigator.clipboard.writeText(WAD):Promise.reject()).then(function(){b.textContent="Copied";setTimeout(function(){b.textContent="Copy number"},1300)},function(){})};
