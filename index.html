@@ -2,7 +2,7 @@
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#fbf7ee">
-<title>ZF Organics | Pure honey and desi ghee</title>
+<title>ZF Organics | Pure by nature</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
@@ -227,6 +227,7 @@ legend{font-weight:600;margin-bottom:8px;padding:0}fieldset{border:0;padding:0;m
 .step button{width:42px;height:44px;border:0;background:none;font-size:1.3rem;cursor:pointer}.step output{min-width:28px;text-align:center;font-weight:600}
 .x{position:absolute;top:12px;right:12px;width:36px;height:36px;border-radius:50%;border:0;background:var(--card);font-size:1.3rem;cursor:pointer;z-index:2}
 .fine{font-size:.85rem;color:var(--mut)}
+.gal{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none}.gal::-webkit-scrollbar{display:none}.gal img{flex:0 0 100%;scroll-snap-align:center;width:100%;height:100%;min-height:280px;object-fit:cover}
 #drawer{top:0;right:0;bottom:0;width:min(440px,100%);transform:translateX(100%);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 .dh{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--line)}.dh h2{font-size:1.5rem}
 .db{flex:1;overflow-y:auto;padding:8px 20px 20px}.df{padding:16px 20px;border-top:1px solid var(--line);display:grid;gap:10px}.df .btn{width:100%}
@@ -377,7 +378,7 @@ main.recede{transform:scale(.95)}
 </head><body>
 <nav><div class="w bar">
  <a class="logo" href="#top" id="logo">ZF Organics</a>
- <div class="links"><a href="#shop">Shop</a><a href="#why">Ingredients</a><a href="#story">Our story</a><a href="#order">How to order</a><a href="#contact">Contact</a></div>
+ <div class="links"><a href="#shop">Shop</a><a href="#why">Why us</a><a href="#story">Our story</a><a href="#order">How to order</a><a href="#contact">Contact</a></div>
  <button class="bag" id="openBag" type="button" aria-haspopup="dialog">Bag <b id="cnt">0</b></button>
 </div></nav>
 <main id="top">
@@ -385,8 +386,8 @@ main.recede{transform:scale(.95)}
  <video class="herovid" id="herovid" autoplay muted playsinline preload="auto" poster="hero-poster.jpg" aria-hidden="true"><source src="hero1.mp4" type="video/mp4"></video>
  <div class="herofade"></div>
  <div class="w herocontent">
- <h1>Pure honey.<br>Pure desi ghee.</h1>
- <p class="lede">One ingredient in every jar. Nothing added, ever.</p>
+ <h1>Pure by nature.<br>Nothing added.</h1>
+ <p class="lede">Honest food, made simply. Nothing added, ever.</p>
  <div class="acts"><a class="btn" href="#shop">Shop now</a><a class="btn alt" href="#story">Our story &rsaquo;</a></div>
  <div class="duo" id="duo"></div>
 </div></section>
@@ -394,21 +395,21 @@ main.recede{transform:scale(.95)}
 <section id="shop" class="tiles" aria-label="Shop"></section>
 
 <section id="why" class="sec statement c"><div class="w">
- <h2>One ingredient. That is the whole label.</h2>
- <p>Our honey is honey. Our ghee is ghee. No sugar, colour or flavour, so what you taste is the product itself.</p>
+ <h2>Simple food. Short labels.</h2>
+ <p>No sugar, colour or flavour added to our products, so what you taste is the food itself.</p>
  <div class="labels">
-  <div class="lab"><small>Natural Honey</small><strong>Natural honey</strong><div><span>Additives</span><span>None</span></div><div><span>Sizes</span><span id="rh"></span></div></div>
-  <div class="lab"><small>Desi Ghee</small><strong>Desi ghee</strong><div><span>Additives</span><span>None</span></div><div><span>Sizes</span><span id="rg"></span></div></div>
+  <div class="lab"><small>What is inside</small><strong>Nothing extra</strong><div><span>Additives</span><span>None</span></div><div><span>Colour or flavour</span><span>None</span></div></div>
+  <div class="lab"><small>How to order</small><strong>Simple ordering</strong><div><span>Order via</span><span>WhatsApp</span></div><div><span>Confirmation</span><span>Price and delivery</span></div></div>
  </div>
 </div></section>
 
 <section id="story" class="sec alt-bg"><div class="w">
- <div class="story"><h2>Two products, made simply.</h2>
-  <div><p>We keep the range short so we can do two things well. Each jar holds one ingredient, so the label is short and easy to read.</p>
-  <p>Pure by nature means we do not dress the product up. It goes from our hands to your kitchen as honey or ghee.</p></div></div>
+ <div class="story"><h2>Products, made simply.</h2>
+  <div><p>We keep the range focused so we can do each product well. Every product has a short label that is easy to read.</p>
+  <p>Pure by nature means we do not dress the product up. It goes from our hands to your kitchen exactly as it is.</p></div></div>
  <div class="cooks">
-  <div><h3>Natural honey</h3><p><b>Morning drink.</b> A spoon in warm water, or stirred into warm drinks.</p><p><b>Breakfast.</b> On a paratha, toast or yogurt.</p><p><b>Sweets.</b> In place of sugar in kheer and baking.</p></div>
-  <div><h3>Desi ghee</h3><p><b>Tarka.</b> The final tempering on daal and kadhi.</p><p><b>On the roti.</b> A small spoon over a hot roti.</p><p><b>Halwa.</b> The base for suji halwa, gajar halwa and panjiri.</p></div>
+  <div><h3>Ways to enjoy our honey</h3><p><b>Morning drink.</b> A spoon in warm water, or stirred into warm drinks.</p><p><b>Breakfast.</b> On a paratha, toast or yogurt.</p><p><b>Sweets.</b> In place of sugar in kheer and baking.</p></div>
+  <div><h3>Ways to enjoy our ghee</h3><p><b>Tarka.</b> The final tempering on daal and kadhi.</p><p><b>On the roti.</b> A small spoon over a hot roti.</p><p><b>Halwa.</b> The base for suji halwa, gajar halwa and panjiri.</p></div>
  </div>
 </div></section>
 
@@ -496,7 +497,7 @@ function drawShop(){$("shop").innerHTML=P.map(function(p){
  return '<article class="tile '+(p.cls||p.id)+'"><h2>'+esc(p.name)+'</h2><p>'+esc(p.tag)+'</p><div class="from">From '+fmt(minP(p))+'</div>'+
  '<div class="acts"><button class="btn gold" type="button" data-o="'+p.id+'">Buy</button><button class="btn alt" type="button" data-o="'+p.id+'">Details &rsaquo;</button></div>'+
  '<button class="vis" type="button" data-o="'+p.id+'" aria-label="Choose '+esc(p.name)+' options">'+jar(p)+'</button></article>'}).join("")}drawShop();
-$("rh").textContent="250 g to 1 kg";$("rg").textContent="500 g to 1 kg";
+
 $("ph").textContent=WAD;$("addr").textContent=ADDR;
 document.querySelectorAll("[data-wa]").forEach(function(a){a.href="https://wa.me/"+WA});
 $("cp").onclick=function(){var b=this;(navigator.clipboard?navigator.clipboard.writeText(WAD):Promise.reject()).then(function(){b.textContent="Copied";setTimeout(function(){b.textContent="Copy number"},1300)},function(){})};
@@ -546,7 +547,7 @@ function paint(){var p=get(cur.id),s=p.types[cur.v].s[cur.z],t=p.types[cur.v].n;
 function chips(){var p=get(cur.id);$("ms").innerHTML=p.types[cur.v].s.map(function(s,i){return '<label class="chip"><input type="radio" name="sz" value="'+i+'"'+(i===cur.z?" checked":"")+'><span>'+s[0]+'</span></label>'}).join("")}
 document.addEventListener("click",function(e){var o=e.target.closest("[data-o]");if(!o)return;
  var p=get(o.dataset.o);cur={id:p.id,v:0,z:0,n:1};
- $("mn").textContent=p.name;$("md").textContent=p.desc;$("mpv").innerHTML='<div class="vis">'+jar(p)+'</div>';
+ $("mn").textContent=p.name;$("md").textContent=p.desc;$("mpv").innerHTML=(p.imgs&&p.imgs.length>1)?'<div class="gal">'+p.imgs.map(function(s){return '<img src="'+s+'" alt="'+esc(p.name)+'">'}).join("")+'</div>':'<div class="vis">'+jar(p)+'</div>';
  $("tset").hidden=p.types.length<2;
  $("mt").innerHTML=p.types.map(function(t,i){return '<label class="chip"><input type="radio" name="ty" value="'+i+'"'+(i?"":" checked")+'><span>'+esc(t.n||p.name)+'</span></label>'}).join("");
  chips();paint();open_($("modal"),"xm",o)});
